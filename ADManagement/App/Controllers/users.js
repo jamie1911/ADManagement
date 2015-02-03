@@ -84,6 +84,7 @@
                                     $scope.changeManager = false;
                                     $scope.newManager = '';
                                     $scope.newDirectList = [];
+                                    $("#directSearchPerson").val("");
                                     $scope.directSearchPerson = '';
                                     $timeout(function () {
                                         $scope.progress(0)
