@@ -1,0 +1,28 @@
+﻿<div class="modal-header">
+    <button type="button" class="close" ng-click="closePhotoModal()">×</button><h4 class="modal-title">Change Photo</h4>
+</div>
+<div class="modal-body">
+    <div>
+        <input type="file" id="fileInput" onchange="angular.element(this).scope().handlePhotoFileSelect(this)" title="Select image file" />
+    </div>
+    <br />
+    <div ng-show="photoChanged">
+        <div class="cropArea center-block">
+            <img-crop image="myPhoto" result-image="myCroppedPhoto" area-type="square" result-image-size="96" result-image-format="image/jpeg"></img-crop>
+        </div>
+        <div>
+            Preview Image:
+        </div>
+        <div>
+            <img ng-src="{{myCroppedPhoto}}" />
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="closePhotoModal()">Close</button>
+    <button type="button" class="btn btn-primary" ng-show="photoChanged" ng-click="savePhotoModal()">Save changes</button>
+</div>
+
+<div style="display: none;">
+    <script>$(document).ready(function () { $('input[type=file]').bootstrapFileInput(); });</script>
+</div>

@@ -1,0 +1,197 @@
+﻿<div ng-controller="UsersController">
+    <!--User Controller-->
+    <!--Search Box-->
+    <div class="">
+        <div>
+            <div class="row" ng-show="!searchentered">
+                <div class="col-lg-8" style="margin-right: auto; margin-left: auto; float: none;">
+                    <img src="../../Images/logo.png">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-8" style="margin-right: auto; margin-left: auto; float: none; table-layout:fixed">
+                    <div class="input-group col-lg-11">
+                        <span class="input-group-btn">
+                            <input ng-model="inputUserSearch" id="inputUserSearch" type="text" class="form-control" placeholder="Search..." ng-keypress="($event.which === 13)?userSearch(inputUserSearch):0">
+                            <button id="btn_inputUserSearch" class="btn btn-default" type="button" ng-click="userSearch(inputUserSearch)" ><span class="glyphicon glyphicon-search"></span></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!--/.Search Box-->
+    <br />
+    <!--User Grid Box-->
+    <div class="container table-bordered" ng-if="usersList.length" ng-click="$event.stopPropagation()">
+        <div class="collapseusergrid" ng-click="isUserGridCollapsed = !isUserGridCollapsed; $event.stopPropagation()"></div>
+            <div class="row" collapse="isUserGridCollapsed">
+                <div>
+                    <table class="table table-striped table-hover table-responsive" style="table-layout:fixed">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Department</th>
+                                <th>Title</th>
+                                <th>Office</th>
+                                <th>Email</th>
+                                <th>Photo</th>
+                            </tr>
+                        </thead>
+                    </table>
+                    <hr style="height: 1px; margin-top: -12px; margin-bottom: -12px; visibility: hidden;" />
+                    <div class="usergrid">
+                        <table class="table table-striped table-hover table-condensed table-responsive" style=" table-layout:fixed">
+                            <tbody>
+                                <tr ng-repeat="user in usersList track by $index" ng-click="getUser(user.samAccountName)">
+                                    <td>{{ user.fullName }}</td>
+                                    <td>{{ user.department }}</td>
+                                    <td>{{ user.title }}</td>
+                                    <td>{{ user.office }}</td>
+                                    <td>{{ user.emailAddress }}</td>
+                                    <td>{{ user.hasPhoto }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+    </div><!--/.User Grid Box-->
+    <br />
+    <br />
+    <div class="container">
+        <!--container-->
+        <div ng-show="userdataloaded">
+            <tabset class="tab-animation">
+                <tab heading="User Profile" active="tab.active">
+                    <!--angular show selected User-->
+                    <h3>User Details</h3>
+                    <form role="form">
+                        <!--User Form-->
+                        <div class="row">
+                            <div class="col-lg-2">
+                                <img class="img-rounded" ng-src="{{selectedUser.thumbnailPhoto}}" />
+                                <div class="row">
+                                    <div class="col-sm-3" style="margin-left: 10px;">
+                                        <p></p>
+                                        <button type="button" class="btn btn-info" ng-click="showPhotoModal()">Change</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label for="firstName">First Name</label>
+                                    <input type="text" ng-readonly="true" class="form-control" id="firstName" name="firstName" data-ng-model="selectedUser.firstName" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="lastName">Last Name</label>
+                                    <input type="text" ng-readonly="true" class="form-control" id="lastName" name="lastName" data-ng-model="selectedUser.lastName" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="fullName">Full Name</label>
+                                    <input type="text" ng-readonly="true" class="form-control" id="fullName" name="fullName" data-ng-model="selectedUser.fullName" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="telephone">Phone Number</label>
+                                    <input type="tel" ng-readonly="true" class="form-control" id="telephone" name="telephone" data-ng-model="selectedUser.telephone" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="emailAddress">Email</label>
+                                    <input type="email" ng-readonly="true" class="form-control" id="emailAddress" name="emailAddress" data-ng-model="selectedUser.emailAddress" />
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label for="title">Title</label>
+                                    <input class="form-control" id="title" name="title" data-ng-model="selectedUser.title" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="department">Department</label>
+                                    <input class="form-control" id="department" name="department" data-ng-model="selectedUser.department" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="managerName">Manager</label>
+                                    <div ng-show="changeManager==false">
+                                        <div class="input-group">
+                                            <input ng-readonly="true" class="form-control" id="managerName" name="managerName" data-ng-model="selectedUser.managerName" />
+                                            <span class="input-group-btn"><button class="btn btn-info" type="button" ng-click="changeTheManger(); selectedUser.managerName = ''; newManager = '';">Change</button></span>
+                                        </div>
+                                    </div>
+                                    <div ng-show="changeManager==true">
+                                        <div class="input-group">
+                                            <input name="newManager" id="newManager" typeahead-loading="isLoadingManager" type="text" class="form-control" ng-model="newManager" typeahead="newManager as newManager.fullName for newManager in managerSearch($viewValue)" typeahead-wait-ms="500" typeahead-min-length="3" placeholder="Search for new manager..." typeahead-editable="false" typeahead-on-select='disabledAddManager = false;' />
+                                            <span class="input-group-btn"><button ng-disabled="disabledAddManager" class="btn btn-success" type="button" ng-click="addNewManager(newManager); selectedUser.managerName = newManager.fullName; disabledAddManager = true;">Use</button></span>
+                                        </div>
+                                        <div ng-show="!!isLoadingManager"><em>Loading managers...</em></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label for="directs">Direct Reports</label>
+                                    <div ng-repeat="direct in selectedUser.directs track by $index" data-ng-model="selectedUser.directs">
+                                        <input type="text" readonly class="form-control disabled" value="{{direct}}" style="margin-bottom: 5px;">
+
+                                    </div>
+                                    <div ng-repeat="newdirect in newDirectList track by $index" data-ng-model="newDirectList">
+                                        <div class="input-group" style="margin-bottom: 5px;">
+                                            <input type="text" ng-readonly="true" class="form-control" value="{{newdirect.fullName}}" />
+                                            <span class="input-group-btn"><button class="btn btn-danger" type="button" ng-click="removeDirect(newdirect)">X</button></span>
+                                        </div>
+                                    </div>
+                                    <div class="input-group">
+                                        <input id="directSearchPerson" name="directSearchPerson" typeahead-loading="isLoadingDirect" type="text" class="form-control" ng-model="directSearchPerson" typeahead="directSearchPerson as directSearchPerson.fullName for directSearchPerson in directSearch($viewValue)" typeahead-wait-ms="500" typeahead-min-length="3" placeholder="Search for new direct report..." typeahead-editable="false" typeahead-on-select='disableAddDirect = false;' />
+                                        <span class="input-group-btn"><button ng-disabled="disableAddDirect" class="btn btn-success" type="button" ng-click="addNewDirectReport(directSearchPerson); disableAddDirect = true;">Add</button></span>
+                                    </div>
+                                    <div ng-show="!!isLoadingDirect"><em>Loading direct reports...</em></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--/.Update Button-->
+                    </form> <!--/.User Form-->
+                    <div class="row">
+                        <!--Update Button-->
+                        <div class="form-group col-lg-offset-6">
+                            <input type="button" id="btnSubmit" class="btn btn-danger" ng-click-message="Are you sure?" ng-click="updateUser(selectedUser)" value="UPDATE" />
+                            <input type="button" id="btnReset" class="btn btn-primary" data-ng-click="getUser(selectedUser.samAccountName)" value="RESET" />
+                        </div>
+                    </div>
+                </tab>
+                <tab heading="Group List">
+                    <h3>Group Details</h3>
+                    <div class="row">
+                        <div ng-if="selectedUser.memberOf">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <label for="groupsearchstring">Search:</label>
+                                    <input ng-model="groupsearchstring" id="groupsearchstring" class="form-control" placeholder="Filter text">
+                                </div>
+                                <div class="col-xs-2">
+                                    <label for="groupsPerPage">items per page:</label>
+                                    <input type="number" id="groupsPerPage" min="1" max="100" class="form-control" ng-model="groupsPerPage">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <br />
+                                <table class="table table-striped table-condensed table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Group Name:</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr dir-paginate="memberOf in selectedUser.memberOf | orderBy:memberOf:order_reverse | filter:groupsearchstring | itemsPerPage: groupsPerPage" current-page="currentPage">
+                                            <td>{{ memberOf }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <dir-pagination-controls boundary-links="true" template-url="App/Templates/dirPagination.tpl.html"></dir-pagination-controls>
+                    </div>
+                </tab>
+            </tabset>
+        </div>  <!--/.angular show selected User-->
+    </div> <!--/.container-->
+</div> <!--/.User Controller-->

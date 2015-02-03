@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <link rel="stylesheet" type="text/css" href="Content/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="Content/bootstrap-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="Content/angular-motion.min.css">
+    <link rel="stylesheet" type="text/css" href="Content/angular-growl.min.css">
+    <link rel="stylesheet" type="text/css" href="Content/ng-img-crop.min.css">
+    <link rel="stylesheet" type="text/css" href="Content/site.css">
+    <title>AD Management Tool</title>
+    <script src="scripts/jquery-2.1.3.min.js"></script>
+    <script src="scripts/jquery-ui-1.11.2.min.js"></script>
+    <script src="scripts/bootstrap.min.js"></script>
+    <script src="scripts/angular.min.js"></script>
+    <script src="scripts/angular-route.min.js"></script>
+    <script src="scripts/angular-animate.min.js"></script>
+    <script src="scripts/angular-ui/ui-bootstrap-tpls.min.js"></script>
+    <script src="scripts/angular-growl.min.js"></script>
+    <script src="scripts/dirPagination.js"></script>
+    <script src="Scripts/ng-img-crop.min.js"></script>
+    <script src="Scripts/bootstrap.file-input.js"></script>
+    <script src="app/main.js"></script>
+    <script src="app/Controllers/root.js"></script>
+    <script src="app/controllers/users.js"></script>
+    <script src="app/controllers/groups.js"></script>
+</head>
+<body ng-app="admanagement" ng-controller="RootController">
+    <!-- Navigation -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <!--navbar-->
+        <div class="container">
+            <!--container -->
+            <div class="navbar-header">
+                <!--navbar header -->
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+                <a class="navbar-brand" href="." onclick="location.reload(true); return false;">Active Directory Management Tool</a>
+            </div> <!--/.navbar header -->
+            <div class="navbar-collapse collapse">
+                <!--nav-collapse -->
+                <!--<ul class="nav navbar-nav">
+                    <li ng-class="{active : activeViewPath==='/users'}"><a href="#/users">Users</a></li>
+                    <li ng-class="{active : activeViewPath==='/groups'}"><a href='#/groups'>Groups</a></li>
+                </ul>-->
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown" dropdown on-toggle="toggled(open)">
+                        <a href="" class="dropdown-toggle" dropdown-toggle>Alerts&nbsp;<span class="badge" ng-if="alertitems.length">{{alertitems.length}}</span></a>
+                        <ul class="dropdown-menu" ng-click="$event.stopPropagation()">
+                            <li ng-repeat="alerts in alertitems track by $index"><a ng-click="removeAlertItem(alerts);" class="alert-{{alerts.Type}} alert-link"><span class="glyphicon glyphicon-remove"></span>&nbsp;&nbsp;{{alerts.Message}}</a></li>
+                        </ul>
+                    </li>
+                    <!--<li><a ng-href="#/users">My Profile</a></li>-->
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div><!--/.container -->
+    </div> <!--/.navbar-->
+    <div class="container">
+        <hr style="height: 1px; margin-top: -15px; margin-bottom: -15px; visibility: hidden;" />
+        <progressbar max="max" ng-show="number" type="{{progressbartype}}" class="progress-striped active" ng-class="fade-out" value="number"></progressbar>
+    </div>
+    <div>
+        <!--Alerts Controller -->
+        <div growl></div>
+    </div><!--/.Alerts Controller -->
+    <!-- Header -->
+    <div>
+        <div class="container" ng-view></div>
+    </div>
+</body>
+</html>
