@@ -6,11 +6,11 @@
 
 <h3>To do list</h3>
 <ul>
-<li>~~Get alert queue finished~~</li>
-<li>~~Finish impersonation~~</li>
-<li>~~Finish audit trail~~</li>
-<li>~~Various bug fixes~~</li>
-<li>~~Cleanup code~~</li>
+<li><strike>Finish alert queue</strike></li>
+<li><strike>Finish impersonation</strike></li>
+<li><strike>Finish audit trail</strike></li>
+<li>Various bug fixes</li>
+<li>Cleanup code</li>
 <li>Finish Install Document</li>
 </ul>
 
