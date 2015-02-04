@@ -1,4 +1,4 @@
-﻿var app = angular.module('admanagement', ['ngRoute', 'ngAnimate', 'ui.bootstrap', 'angular-growl', 'angularUtils.directives.dirPagination', 'ngImgCrop']);
+﻿var app = angular.module('admanagement', ['ngRoute', 'ngAnimate', 'ui.bootstrap', 'angular-growl', 'angularUtils.directives.dirPagination', 'ngImgCrop', 'ngTable']);
 
 app.config(['$routeProvider', 'growlProvider',
   function ($routeProvider, growlProvider) {

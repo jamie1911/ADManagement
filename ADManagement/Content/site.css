@@ -70,18 +70,24 @@
     position: relative;
 }
 
-    .collapseusergrid:after {
-        content: "Toggle";
-        position: absolute;
-        top: -18px;
-        right: -16px;
-        -webkit-border-radius: 28;
-        -moz-border-radius: 28;
-        border-radius: 28px;
-        font-family: Arial;
-        color: #ffffff;
-        font-size: 12px;
-        background: #31b0d5;
-        padding: 10px 20px 10px 20px;
-        text-decoration: none;
-    }
+    .collapseusergrid::after {
+    content: "Toggle List";
+    position: absolute;
+    top: -40px;
+    right: -10px;
+    -webkit-border-radius: 28;
+    -moz-border-radius: 28;
+    border-radius: 28px;
+    font-family: Arial;
+    color: #ffffff;
+    font-size: 12px;
+    background: #31b0d5;
+    padding: 10px 20px 10px 20px;
+    text-decoration: none;
+}
+
+
+.ng-table-pagination {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}

@@ -13,7 +13,7 @@
                     <div class="input-group col-lg-11">
                         <span class="input-group-btn">
                             <input ng-model="inputUserSearch" id="inputUserSearch" type="text" class="form-control" placeholder="Search..." ng-keypress="($event.which === 13)?userSearch(inputUserSearch):0">
-                            <button id="btn_inputUserSearch" class="btn btn-default" type="button" ng-click="userSearch(inputUserSearch)" ><span class="glyphicon glyphicon-search"></span></button>
+                            <button id="btn_inputUserSearch" class="btn btn-default" type="button" ng-click="userSearch(inputUserSearch)"><span class="glyphicon glyphicon-search"></span></button>
                         </span>
                     </div>
                 </div>
@@ -21,8 +21,35 @@
         </div>
     </div><!--/.Search Box-->
     <br />
+    <div class="container tab-animation" ng-if="usersList.length" ng-click="$event.stopPropagation()">
+        <div class="collapseusergrid" ng-click="isUserGridCollapsed = !isUserGridCollapsed; $event.stopPropagation()"></div>
+        <div collapse="isUserGridCollapsed">
+            <table ng-table="tableParams" class="table table-hover table-bordered table-striped table-responsive ng-table-rowselected" style="max-height:300px;">
+                <tr ng-repeat="user in $data track by $index" ng-click="getUser(user.samAccountName);">
+                    <td data-title="'Name'" sortable="'fullName'">
+                        {{user.fullName}}
+                    </td>
+                    <td data-title="'Department'" sortable="'department'">
+                        {{user.department}}
+                    </td>
+                    <td data-title="'Title'" sortable="'title'">
+                        {{user.title}}
+                    </td>
+                    <td data-title="'Office'" sortable="'office'">
+                        {{user.office}}
+                    </td>
+                    <td data-title="'Email'" sortable="'emailAddress'">
+                        {{user.emailAddress}}
+                    </td>
+                    <td data-title="'Photo'" sortable="'hasPhoto'">
+                        {{user.hasPhoto}}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
     <!--User Grid Box-->
-    <div class="container table-bordered" ng-if="usersList.length" ng-click="$event.stopPropagation()">
+    <!--<div class="container table-bordered" ng-if="usersList.length" ng-click="$event.stopPropagation()">
         <div class="collapseusergrid" ng-click="isUserGridCollapsed = !isUserGridCollapsed; $event.stopPropagation()"></div>
             <div class="row" collapse="isUserGridCollapsed">
                 <div>
@@ -55,7 +82,7 @@
                     </div>
                 </div>
             </div>
-    </div><!--/.User Grid Box-->
+    </div>/.User Grid Box-->
     <br />
     <br />
     <div class="container">

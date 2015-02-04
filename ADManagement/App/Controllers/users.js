@@ -1,5 +1,5 @@
 ﻿angular.module('admanagement')
-    .controller('UsersController', function ($scope, $http, $timeout, $modal) {
+    .controller('UsersController', function ($scope, $http, $timeout, $modal, $filter, ngTableParams) {
         $scope.userdataloaded = false;
         $scope.usersList = [];
         $scope.userCount = 0;
@@ -16,7 +16,7 @@
             $scope.progress(25);
             $scope.searchentered = true;
             $scope.userdataloaded = false;
-            
+
             $http.get('api/users/GetPeople?people=' + inputUserSearch)
                     .success(function (data, status, headers, config) {
                         if (data.length > 0) {
@@ -32,6 +32,30 @@
                             $timeout(function () {
                                 $scope.progress(0)
                             }, 1000);
+                            $scope.tableParams = new ngTableParams({
+                                page: 1,            // show first page
+                                count: 5,          // count per page
+                                filter: {
+                                    //name: 'M'       // initial filter
+                                },
+                                sorting: {
+                                    //name: 'asc'     // initial sorting
+                                }
+                            }, {
+                                total: data.length, // length of data
+                                getData: function ($defer, params) {
+                                    // use build-in angular filter
+                                    var filteredData = params.filter() ?
+                                            $filter('filter')(data, params.filter()) :
+                                            data;
+                                    var orderedData = params.sorting() ?
+                                            $filter('orderBy')(filteredData, params.orderBy()) :
+                                            data;
+
+                                    params.total(orderedData.length); // set total for recalc pagination
+                                    $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+                                }
+                            });
                         }
                         else {
                             $scope.progress(100, 'warning');
@@ -64,7 +88,6 @@
 
         //start retrieve user from Active Directory service
         $scope.getUser = function (samAccountName) {
-            $scope.userdataloaded = false;
             $scope.progress(25);
             $scope.selectedUser = (
                             $http.get('api/users/GetPerson?person=' + samAccountName)
@@ -119,7 +142,7 @@
                     'ThumbnailPhoto': user.thumbnailPhoto,
                     'NewDirects': user.newDirects
                 })
-                
+
                 .success(function (data, status, headers, config) {
                     $scope.progress(100, 'success');
                     $scope.addAlert(data.type, data.message);
@@ -193,8 +216,8 @@
             return $http.get('api/users/GetPeople?people=' + viewValue)
                 .then(function (response) {
                     $('#directSearchPerson').removeClass('loadinggif');
-                   if (response.data < 1) {
-                       $scope.addAlert('warning', 'Please refine search for new direct report');
+                    if (response.data < 1) {
+                        $scope.addAlert('warning', 'Please refine search for new direct report');
                         return response.data
                     }
                     else {
