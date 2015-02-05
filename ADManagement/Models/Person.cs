@@ -28,7 +28,7 @@ namespace ADManagement.Models
         public string ManagerDistinguishedName { get; set; }
 
         [XmlIgnore]
-        public List<string> Directs { get; set; }
+        public List<Person> Directs { get; set; }
 
         [XmlIgnore]
         public List<string> NewDirects { get; set; }

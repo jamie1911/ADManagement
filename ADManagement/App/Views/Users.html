@@ -158,7 +158,7 @@
                                 <div class="form-group">
                                     <label for="directs">Direct Reports</label>
                                     <div ng-repeat="direct in selectedUser.directs track by $index" data-ng-model="selectedUser.directs">
-                                        <input type="text" readonly class="form-control disabled" value="{{direct}}" style="margin-bottom: 5px;">
+                                        <input type="text" readonly class="form-control disabled" value="{{direct.fullName}}" style="margin-bottom: 5px;" ng-click="getUser(direct.samAccountName);">
 
                                     </div>
                                     <div ng-repeat="newdirect in newDirectList track by $index" data-ng-model="newDirectList">

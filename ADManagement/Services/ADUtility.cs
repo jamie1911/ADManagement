@@ -353,15 +353,39 @@ namespace ADManagement.Services
                         userInfo.DirectsCount = (employeeEntryToGet.Properties["directreports"] != null) ? employeeEntryToGet.Properties["directreports"].Count : 0;
                         if (userInfo.DirectsCount > 0)
                         {
-                            userInfo.Directs = new List<string>(userInfo.DirectsCount);
+                            userInfo.Directs = new List<Person> { };
                             for (int i = 0; i < userInfo.DirectsCount; i++)
                             {
                                 var directreport = employeeEntryToGet.Properties["directreports"][i].ToString();
-                                directreport = directreport.Replace("CN=", "");
                                 directreport = directreport.TrimEnd(',');
                                 directreport = directreport.Replace("\\, ", ", ");
                                 directreport = directreport.Split(',')[0];
-                                userInfo.Directs.Add(directreport);
+
+                                ldap_searcher.Filter = "(&(objectCategory=person)(objectClass=user)("+directreport+"*))";
+                                ldap_searcher.PropertiesToLoad.Clear();
+                                ldap_searcher.PropertiesToLoad.Add("sAMAccountName");
+                                ldap_searcher.PropertiesToLoad.Add("cn");
+                                SearchResult l_result_direct = ldap_searcher.FindOne();
+                                var direct_FirstName = "";
+                                var direct_SamAccountName = "";
+                                using (DirectoryEntry directEntryToGet = l_result_direct.GetDirectoryEntry())
+                                {
+                                    if (directEntryToGet.Properties["cn"] != null)
+                                    {
+                                        direct_FirstName = directEntryToGet.Properties["cn"][0].ToString();
+                                    }
+                                    if (directEntryToGet.Properties["sAMAccountName"] != null)
+                                    {
+                                        direct_SamAccountName = directEntryToGet.Properties["sAMAccountName"][0].ToString();
+                                    }
+                                }
+                                userInfo.Directs.Add(new Person
+                                {
+
+                                    SAMAccountName = direct_SamAccountName,
+                                    FullName = direct_FirstName
+
+                                });
                             }
                             impersonationContext.Undo();
                             log.Info("" + winId.Name + " is retreiving property directreports for: " + userInfo.SAMAccountName + "");
