@@ -131,6 +131,10 @@
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
+                                    <label for="title">Office</label>
+                                    <input class="form-control" id="office" name="office" data-ng-model="selectedUser.office" />
+                                </div>
+                                <div class="form-group">
                                     <label for="title">Title</label>
                                     <input class="form-control" id="title" name="title" data-ng-model="selectedUser.title" />
                                 </div>
@@ -142,8 +146,8 @@
                                     <label for="managerName">Manager</label>
                                     <div ng-show="changeManager==false">
                                         <div class="input-group">
-                                            <input ng-readonly="true" class="form-control" id="managerName" name="managerName" data-ng-model="selectedUser.managerName" />
-                                            <span class="input-group-btn"><button class="btn btn-info" type="button" ng-click="changeTheManger(); selectedUser.managerName = ''; newManager = '';">Change</button></span>
+                                            <input ng-readonly="true" class="form-control" id="managerName" name="managerName" ng-model="selectedUser.managerName" ng-click="getUser(selectedUser.managerSamAccountName)" />
+                                            <span class="input-group-btn"><button class="btn btn-info" type="button" ng-click="changeTheManger(); selectedUser.managerName = ''; newManager = ''; disabledAddManager = true;">Change</button></span>
                                         </div>
                                     </div>
                                     <div ng-show="changeManager==true">

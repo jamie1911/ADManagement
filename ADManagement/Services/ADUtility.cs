@@ -203,7 +203,7 @@ namespace ADManagement.Services
             try
             {
                 impersonationContext = WindowsIdentity.Impersonate(winId.Token);
-                ldap_searcher.Filter = "(&(sAMAccountName=" + selectedUser + "*)(samAccountType=805306368)(!userAccountControl:1.2.840.113556.1.4.803:=2))";
+                ldap_searcher.Filter = "(&(sAMAccountName=" + selectedUser + "*)(samAccountType=805306368))";
                 //properties to get
                 ldap_searcher.PropertiesToLoad.Clear();
                 ldap_searcher.PropertiesToLoad.Add("sAMAccountName");
@@ -366,13 +366,13 @@ namespace ADManagement.Services
                                 ldap_searcher.PropertiesToLoad.Add("sAMAccountName");
                                 ldap_searcher.PropertiesToLoad.Add("cn");
                                 SearchResult l_result_direct = ldap_searcher.FindOne();
-                                var direct_FirstName = "";
+                                var direct_FullName = "";
                                 var direct_SamAccountName = "";
                                 using (DirectoryEntry directEntryToGet = l_result_direct.GetDirectoryEntry())
                                 {
                                     if (directEntryToGet.Properties["cn"] != null)
                                     {
-                                        direct_FirstName = directEntryToGet.Properties["cn"][0].ToString();
+                                        direct_FullName = directEntryToGet.Properties["cn"][0].ToString();
                                     }
                                     if (directEntryToGet.Properties["sAMAccountName"] != null)
                                     {
@@ -383,7 +383,7 @@ namespace ADManagement.Services
                                 {
 
                                     SAMAccountName = direct_SamAccountName,
-                                    FullName = direct_FirstName
+                                    FullName = direct_FullName
 
                                 });
                             }
@@ -411,13 +411,38 @@ namespace ADManagement.Services
                         //get manager and cleanup manager DN name
                         if (employeeEntryToGet.Properties.Contains("manager") && employeeEntryToGet.Properties["manager"] != null)
                         {
-                            var managerCN = employeeEntryToGet.Properties["manager"][0].ToString();
-                            var managerCNArr = managerCN.Split(',');
-                            if (managerCNArr != null)
-                            {
-                                userInfo.ManagerName = managerCNArr.FirstOrDefault(a => a.Contains("CN=")).Remove(0, 3);
-                            }
                             userInfo.ManagerDistinguishedName = employeeEntryToGet.Properties["manager"][0].ToString();
+
+                            var managertofind = employeeEntryToGet.Properties["manager"][0].ToString();
+                            managertofind = managertofind.TrimEnd(',');
+                            managertofind = managertofind.Replace("\\, ", ", ");
+                            managertofind = managertofind.Split(',')[0];
+
+                            ldap_searcher.Filter = "(&(objectCategory=person)(objectClass=user)(" + managertofind + "*))";
+                            ldap_searcher.PropertiesToLoad.Clear();
+                            ldap_searcher.PropertiesToLoad.Add("sAMAccountName");
+                            SearchResult l_result_manager = ldap_searcher.FindOne();
+
+                            using (DirectoryEntry managerEntryToGet = l_result_manager.GetDirectoryEntry())
+                            {
+                                if (managerEntryToGet.Properties["sAMAccountName"] != null)
+                                {
+                                    userInfo.ManagerSamAccountName = managerEntryToGet.Properties["sAMAccountName"][0].ToString();
+                                }
+                                else
+                                {
+
+                                }
+                                if (managerEntryToGet.Properties["cn"] != null)
+                                {
+                                    userInfo.ManagerName = managerEntryToGet.Properties["cn"][0].ToString();
+                                }
+                                else
+                                {
+                                    userInfo.ManagerName = null;
+                                }
+                            }
+
                             impersonationContext.Undo();
                             log.Info("" + winId.Name + " is retreiving property manager for: " + userInfo.SAMAccountName + ": " + userInfo.ManagerDistinguishedName + "");
                             impersonationContext = WindowsIdentity.Impersonate(winId.Token);
@@ -426,6 +451,7 @@ namespace ADManagement.Services
                         {
                             userInfo.ManagerName = "";
                             userInfo.ManagerDistinguishedName = "";
+                            userInfo.ManagerSamAccountName = "";
                         }
                         //get thumbnail photo
                         if (employeeEntryToGet.Properties.Contains("thumbnailPhoto") && employeeEntryToGet.Properties["thumbnailPhoto"] != null)

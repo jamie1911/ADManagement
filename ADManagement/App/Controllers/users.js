@@ -105,7 +105,7 @@
                                     $scope.myCroppedPhoto = '';
                                     $scope.photoChanged = false;
                                     $scope.changeManager = false;
-                                    $scope.newManager = '';
+                                    $scope.newManager = null;
                                     $scope.newDirectList = [];
                                     $("#directSearchPerson").val("");
                                     $scope.directSearchPerson = '';
@@ -233,8 +233,11 @@
 
         //start change manager
         $scope.changeTheManger = function () {
+            $scope.newManager = null;
             $scope.changeManager = true;
             $scope.disabledAddManager = false;
+            $scope.selectedUser.managerDistinguishedName = null;
+            $scope.selectedUser.managerName = null;
         }
         $scope.managerSearch = function (viewValue) {
             $('#newManager').addClass('loadinggif');
@@ -254,6 +257,7 @@
             $scope.changeManager = false;
             $scope.disabledAddManager = true;
             $scope.selectedUser.managerDistinguishedName = data.distinguishedName;
+            $scope.selectedUser.managerName = data.fullName;
         }
         //stop change manager
 

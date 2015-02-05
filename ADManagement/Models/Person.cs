@@ -16,7 +16,7 @@ namespace ADManagement.Models
         public string Title { get; set; }
         public string Office { get; set; }
         public string Telephone { get; set; }
-        public string ManagerName { get; set; }
+        
         public int DirectsCount { get; set; }
         public string Department { get; set; }
         public bool DeleteThumbnailPhoto { get; set; }
@@ -26,6 +26,8 @@ namespace ADManagement.Models
         
         [XmlIgnore]
         public string ManagerDistinguishedName { get; set; }
+        public string ManagerName { get; set; }
+        public string ManagerSamAccountName { get; set; }
 
         [XmlIgnore]
         public List<Person> Directs { get; set; }
