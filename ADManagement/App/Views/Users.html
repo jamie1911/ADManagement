@@ -22,7 +22,9 @@
     </div><!--/.Search Box-->
     <br />
     <div class="container tab-animation" ng-if="usersList.length" ng-click="$event.stopPropagation()">
-        <div class="collapseusergrid" ng-click="isUserGridCollapsed = !isUserGridCollapsed; $event.stopPropagation()"></div>
+        <div class="collapseusergrid">
+            <button type="button" class="btn btn-info center-block" ng-click="isUserGridCollapsed = !isUserGridCollapsed; $event.stopPropagation()">Hide Employees</button>
+        </div>
         <div collapse="isUserGridCollapsed">
             <table ng-table="tableParams" class="table table-hover table-bordered table-striped table-responsive ng-table-rowselected" style="max-height:300px;">
                 <tr ng-repeat="user in $data track by $index" ng-click="getUser(user.samAccountName);">
