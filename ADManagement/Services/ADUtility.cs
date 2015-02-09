@@ -16,8 +16,7 @@ namespace ADManagement.Services
 
         public List<Person> GetPeople(string inputUserSearch)
         {
-            string searchparse = inputUserSearch;
-            string[] userstofind = searchparse.Split(';').Select(sValue => sValue.Trim()).ToArray();
+            string[] userstofind = inputUserSearch.Split(';').Select(sValue => sValue.Trim()).ToArray();
             Person uInfo = new Person();
             DirectoryEntry ldapConnection = createDirectoryEntry();
             DirectorySearcher ldap_searcher = new DirectorySearcher(ldapConnection);
@@ -58,16 +57,6 @@ namespace ADManagement.Services
                             //find users
                             allemployee_results = ldap_searcher.FindAll();
                         }
-                        if (allemployee_results.Count > 300)
-                        {
-                            UserList.Add(new Person
-                            {
-                                FullName = "Too Many People",
-                            });
-
-                            return UserList;
-                        }
-
                         if (allemployee_results.Count > 0)
                         {
                             foreach (SearchResult employeeEntryToGet in allemployee_results)
@@ -159,28 +148,13 @@ namespace ADManagement.Services
                                     HasPhoto = uInfo.HasPhoto
                                 });
                             }
-                            UserList = UserList.OrderBy(newlist => newlist.SAMAccountName).ToList();
                         }
-                        else
-                        {
-                            //uList.Status.error = true;
-                            //uList.Status.message = "Employee Not Found";
-                            //log.Info("" + winId.Name + " has encountered an error: " + uList.Status.message + "");
-                        }
-                    }
-                    else
-                    {
-                        //uList.Status.error = true;
-                        //uList.Status.message = "No Employee Entered";
-                        //log.Info("" + winId.Name + " has encountered an error: " + uList.Status.message + "");
                     }
                 }
+                UserList = UserList.OrderBy(newlist => newlist.SAMAccountName).ToList();
             }
-
             catch (Exception ex)
             {
-                //uList.Status.error = true;
-                //uList.Status.message = ex.Message;
                 log.Info("" + winId.Name + " has encountered an error: " + ex.Message + "");
             }
             finally
@@ -239,7 +213,7 @@ namespace ADManagement.Services
                         {
                             userInfo.SAMAccountName = employeeEntryToGet.Properties["sAMAccountName"][0].ToString();
                             impersonationContext.Undo();
-                            log.Info("" + winId.Name + " is retreiving to information for: " + userInfo.SAMAccountName + "");
+                            log.Info("" + winId.Name + " is retreiving information for: " + userInfo.SAMAccountName + "");
                             impersonationContext = WindowsIdentity.Impersonate(winId.Token);
                         }
                         else

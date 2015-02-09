@@ -144,7 +144,7 @@
                 })
 
                 .success(function (data, status, headers, config) {
-                    $scope.progress(100, 'success');
+                    $scope.progress(100, data.type);
                     $scope.addAlert(data.type, data.message);
                     if (data.statusDetail.length > 0) {
                         for (index = 0; index < data.statusDetail.length; ++index) {
