@@ -20,7 +20,7 @@ namespace ADManagement.Models
         public int DirectsCount { get; set; }
         public string Department { get; set; }
         public bool DeleteThumbnailPhoto { get; set; }
-
+        public string HasPhoto { get; set; }
         [XmlIgnore]
         public string DistinguishedName { get; set; }
         

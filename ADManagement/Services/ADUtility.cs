@@ -14,163 +14,169 @@ namespace ADManagement.Services
     {
         readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public List<People> GetPeople(string inputUserSearch)
+        public List<Person> GetPeople(string inputUserSearch)
         {
-            People uInfo = new People();
-            DirectoryEntry myLdapConnection = createDirectoryEntry();
-            DirectorySearcher ldap_searcher = new DirectorySearcher(myLdapConnection);
+            string searchparse = inputUserSearch;
+            string[] userstofind = searchparse.Split(';').Select(sValue => sValue.Trim()).ToArray();
+            Person uInfo = new Person();
+            DirectoryEntry ldapConnection = createDirectoryEntry();
+            DirectorySearcher ldap_searcher = new DirectorySearcher(ldapConnection);
             WindowsIdentity winId = (WindowsIdentity)HttpContext.Current.User.Identity;
             WindowsImpersonationContext impersonationContext = null;
-            var UserList = new List<People>();
+            var UserList = new List<Person>();
             try
             {
-                if (!string.IsNullOrEmpty(inputUserSearch))
+                foreach (string user in userstofind)
                 {
-                    log.Info("" + winId.Name + " is searching for: " + inputUserSearch + "");
-                    impersonationContext = WindowsIdentity.Impersonate(winId.Token);
-                    string filter = "(&(anr=" + inputUserSearch + "*)(samAccountType=805306368)(!userAccountControl:1.2.840.113556.1.4.803:=2))";
-                    //properties to get
-                    ldap_searcher.PropertiesToLoad.Clear();
-                    ldap_searcher.PropertiesToLoad.Add("sAMAccountName");
-                    ldap_searcher.PropertiesToLoad.Add("title");
-                    ldap_searcher.PropertiesToLoad.Add("cn");
-                    ldap_searcher.PropertiesToLoad.Add("department");
-                    ldap_searcher.PropertiesToLoad.Add("distinguishedName");
-                    ldap_searcher.PropertiesToLoad.Add("mail");
-                    ldap_searcher.PropertiesToLoad.Add("thumbnailPhoto");
-                    ldap_searcher.PropertiesToLoad.Add("physicalDeliveryOfficeName");
-                    ldap_searcher.Filter = filter;
-                    //create search collection
-                    SearchResultCollection allemployee_results = ldap_searcher.FindAll();
-                    if (allemployee_results.Count == 0)
+                    if (!string.IsNullOrEmpty(user))
                     {
-                        filter = "(&(sAMAccountName=" + inputUserSearch + "*)(samAccountType=805306368)(!userAccountControl:1.2.840.113556.1.4.803:=2))";
-                        if (inputUserSearch.Contains("@"))
-                        {
-                            string convertToUsername = inputUserSearch.Split('@')[0];
-                            filter = "(&(sAMAccountName=" + convertToUsername + "*)(samAccountType=805306368)(!userAccountControl:1.2.840.113556.1.4.803:=2))";
-                        }
+                        log.Info("" + winId.Name + " is searching for: " + user + "");
+                        impersonationContext = WindowsIdentity.Impersonate(winId.Token);
+                        string filter = "(&(anr=" + user + "*)(samAccountType=805306368)(!userAccountControl:1.2.840.113556.1.4.803:=2))";
+                        //properties to get
+                        ldap_searcher.PropertiesToLoad.Clear();
+                        ldap_searcher.PropertiesToLoad.Add("sAMAccountName");
+                        ldap_searcher.PropertiesToLoad.Add("title");
+                        ldap_searcher.PropertiesToLoad.Add("cn");
+                        ldap_searcher.PropertiesToLoad.Add("department");
+                        ldap_searcher.PropertiesToLoad.Add("distinguishedName");
+                        ldap_searcher.PropertiesToLoad.Add("mail");
+                        ldap_searcher.PropertiesToLoad.Add("thumbnailPhoto");
+                        ldap_searcher.PropertiesToLoad.Add("physicalDeliveryOfficeName");
                         ldap_searcher.Filter = filter;
-                        //find users
-                        allemployee_results = ldap_searcher.FindAll();
-                    }
-                    if (allemployee_results.Count > 300)
-                    {
-                        UserList.Add(new People
+                        //create search collection
+                        SearchResultCollection allemployee_results = ldap_searcher.FindAll();
+                        if (allemployee_results.Count == 0)
                         {
-                            FullName = "Too Many People",
-                        });
-
-                        return UserList;
-                    }
-
-                    if (allemployee_results.Count > 0)
-                    {
-                        foreach (SearchResult employeeEntryToGet in allemployee_results)
-                        {
-                            //get sAMAccountName
-                            if (employeeEntryToGet.Properties.Contains("sAMAccountName") && employeeEntryToGet.Properties["sAMAccountName"] != null)
+                            filter = "(&(sAMAccountName=" + user + "*)(samAccountType=805306368)(!userAccountControl:1.2.840.113556.1.4.803:=2))";
+                            if (inputUserSearch.Contains("@"))
                             {
-                                uInfo.SAMAccountName = employeeEntryToGet.Properties["sAMAccountName"][0].ToString();
-
+                                string convertToUsername = user.Split('@')[0];
+                                filter = "(&(sAMAccountName=" + convertToUsername + "*)(samAccountType=805306368)(!userAccountControl:1.2.840.113556.1.4.803:=2))";
                             }
-                            else
-                            {
-                                uInfo.SAMAccountName = "";
-                            }
-                            //get Full Name
-                            if (employeeEntryToGet.Properties.Contains("cn") && employeeEntryToGet.Properties["cn"] != null)
-                            {
-                                uInfo.FullName = employeeEntryToGet.Properties["cn"][0].ToString();
-                            }
-                            else
-                            {
-                                uInfo.FullName = "";
-                            }
-                            //get Title
-                            if (employeeEntryToGet.Properties.Contains("title") && employeeEntryToGet.Properties["title"] != null)
-                            {
-                                uInfo.Title = employeeEntryToGet.Properties["title"][0].ToString();
-                            }
-                            else
-                            {
-                                uInfo.Title = "";
-                            }
-                            //get Departament
-                            if (employeeEntryToGet.Properties.Contains("department") && employeeEntryToGet.Properties["department"] != null)
-                            {
-                                uInfo.Department = employeeEntryToGet.Properties["department"][0].ToString();
-                            }
-                            else
-                            {
-                                uInfo.Department = "";
-                            }
-                            //get Email
-                            if (employeeEntryToGet.Properties.Contains("mail") && employeeEntryToGet.Properties["mail"] != null)
-                            {
-                                uInfo.EmailAddress = employeeEntryToGet.Properties["mail"][0].ToString();
-                            }
-                            else
-                            {
-                                uInfo.EmailAddress = "";
-                            }
-                            //get Office
-                            if (employeeEntryToGet.Properties.Contains("physicalDeliveryOfficeName") && employeeEntryToGet.Properties["physicalDeliveryOfficeName"] != null)
-                            {
-                                uInfo.Office = employeeEntryToGet.Properties["physicalDeliveryOfficeName"][0].ToString();
-                            }
-                            else
-                            {
-                                uInfo.Office = "";
-                            }
-                            //get photo
-                            if (employeeEntryToGet.Properties.Contains("thumbnailPhoto") && employeeEntryToGet.Properties["thumbnailPhoto"] != null)
-                            {
-                                uInfo.HasPhoto = true;
-                            }
-                            else
-                            {
-                                uInfo.HasPhoto = false;
-                            }
-
-                            //get Distinguished Name
-                            if (employeeEntryToGet.Properties.Contains("distinguishedName") && employeeEntryToGet.Properties["distinguishedName"] != null)
-                            {
-                                uInfo.DistinguishedName = employeeEntryToGet.Properties["distinguishedName"][0].ToString();
-                            }
-                            else
-                            {
-                                uInfo.DistinguishedName = "";
-                            }
-                            //add user to list                           
-                            UserList.Add(new People
-                            {
-                                SAMAccountName = uInfo.SAMAccountName,
-                                Title = uInfo.Title,
-                                Department = uInfo.Department,
-                                EmailAddress = uInfo.EmailAddress,
-                                Office = uInfo.Office,
-                                DistinguishedName = uInfo.DistinguishedName,
-                                FullName = uInfo.FullName,
-                                HasPhoto = uInfo.HasPhoto
-                            });
+                            ldap_searcher.Filter = filter;
+                            //find users
+                            allemployee_results = ldap_searcher.FindAll();
                         }
-                        UserList = UserList.OrderBy(newlist => newlist.SAMAccountName).ToList();
+                        if (allemployee_results.Count > 300)
+                        {
+                            UserList.Add(new Person
+                            {
+                                FullName = "Too Many People",
+                            });
+
+                            return UserList;
+                        }
+
+                        if (allemployee_results.Count > 0)
+                        {
+                            foreach (SearchResult employeeEntryToGet in allemployee_results)
+                            {
+                                //get sAMAccountName
+                                if (employeeEntryToGet.Properties.Contains("sAMAccountName") && employeeEntryToGet.Properties["sAMAccountName"] != null)
+                                {
+                                    uInfo.SAMAccountName = employeeEntryToGet.Properties["sAMAccountName"][0].ToString();
+
+                                }
+                                else
+                                {
+                                    uInfo.SAMAccountName = "";
+                                }
+                                //get Full Name
+                                if (employeeEntryToGet.Properties.Contains("cn") && employeeEntryToGet.Properties["cn"] != null)
+                                {
+                                    uInfo.FullName = employeeEntryToGet.Properties["cn"][0].ToString();
+                                }
+                                else
+                                {
+                                    uInfo.FullName = "";
+                                }
+                                //get Title
+                                if (employeeEntryToGet.Properties.Contains("title") && employeeEntryToGet.Properties["title"] != null)
+                                {
+                                    uInfo.Title = employeeEntryToGet.Properties["title"][0].ToString();
+                                }
+                                else
+                                {
+                                    uInfo.Title = "";
+                                }
+                                //get Departament
+                                if (employeeEntryToGet.Properties.Contains("department") && employeeEntryToGet.Properties["department"] != null)
+                                {
+                                    uInfo.Department = employeeEntryToGet.Properties["department"][0].ToString();
+                                }
+                                else
+                                {
+                                    uInfo.Department = "";
+                                }
+                                //get Email
+                                if (employeeEntryToGet.Properties.Contains("mail") && employeeEntryToGet.Properties["mail"] != null)
+                                {
+                                    uInfo.EmailAddress = employeeEntryToGet.Properties["mail"][0].ToString();
+                                }
+                                else
+                                {
+                                    uInfo.EmailAddress = "";
+                                }
+                                //get Office
+                                if (employeeEntryToGet.Properties.Contains("physicalDeliveryOfficeName") && employeeEntryToGet.Properties["physicalDeliveryOfficeName"] != null)
+                                {
+                                    uInfo.Office = employeeEntryToGet.Properties["physicalDeliveryOfficeName"][0].ToString();
+                                }
+                                else
+                                {
+                                    uInfo.Office = "";
+                                }
+                                //get photo
+                                if (employeeEntryToGet.Properties.Contains("thumbnailPhoto") && employeeEntryToGet.Properties["thumbnailPhoto"] != null)
+                                {
+                                    uInfo.HasPhoto = "Yes";
+                                }
+                                else
+                                {
+                                    uInfo.HasPhoto = "No";
+                                }
+
+                                //get Distinguished Name
+                                if (employeeEntryToGet.Properties.Contains("distinguishedName") && employeeEntryToGet.Properties["distinguishedName"] != null)
+                                {
+                                    uInfo.DistinguishedName = employeeEntryToGet.Properties["distinguishedName"][0].ToString();
+                                }
+                                else
+                                {
+                                    uInfo.DistinguishedName = "";
+                                }
+                                //add user to list                           
+                                UserList.Add(new Person
+                                {
+                                    SAMAccountName = uInfo.SAMAccountName,
+                                    Title = uInfo.Title,
+                                    Department = uInfo.Department,
+                                    EmailAddress = uInfo.EmailAddress,
+                                    Office = uInfo.Office,
+                                    DistinguishedName = uInfo.DistinguishedName,
+                                    FullName = uInfo.FullName,
+                                    HasPhoto = uInfo.HasPhoto
+                                });
+                            }
+                            UserList = UserList.OrderBy(newlist => newlist.SAMAccountName).ToList();
+                        }
+                        else
+                        {
+                            //uList.Status.error = true;
+                            //uList.Status.message = "Employee Not Found";
+                            //log.Info("" + winId.Name + " has encountered an error: " + uList.Status.message + "");
+                        }
                     }
                     else
                     {
                         //uList.Status.error = true;
-                        //uList.Status.message = "Employee Not Found";
+                        //uList.Status.message = "No Employee Entered";
                         //log.Info("" + winId.Name + " has encountered an error: " + uList.Status.message + "");
                     }
                 }
-                else
-                {
-                    //uList.Status.error = true;
-                    //uList.Status.message = "No Employee Entered";
-                    //log.Info("" + winId.Name + " has encountered an error: " + uList.Status.message + "");
-                }
             }
+
             catch (Exception ex)
             {
                 //uList.Status.error = true;
@@ -180,7 +186,7 @@ namespace ADManagement.Services
             finally
             {
                 ldap_searcher.Dispose();
-                myLdapConnection.Dispose();
+                ldapConnection.Dispose();
                 winId.Dispose();
                 if (impersonationContext != null)
                 {
@@ -194,8 +200,8 @@ namespace ADManagement.Services
         public Person GetPerson(string selectedUser)
         {
             Person userInfo = new Person();
-            DirectoryEntry myLdapConnection = createDirectoryEntry();
-            DirectorySearcher ldap_searcher = new DirectorySearcher(myLdapConnection);
+            DirectoryEntry ldapConnection = createDirectoryEntry();
+            DirectorySearcher ldap_searcher = new DirectorySearcher(ldapConnection);
             WindowsIdentity winId = (WindowsIdentity)HttpContext.Current.User.Identity;
             WindowsImpersonationContext impersonationContext = null;
             PrincipalContext principalCtx = createPrincipalCtx();
@@ -361,7 +367,7 @@ namespace ADManagement.Services
                                 directreport = directreport.Replace("\\, ", ", ");
                                 directreport = directreport.Split(',')[0];
 
-                                ldap_searcher.Filter = "(&(objectCategory=person)(objectClass=user)("+directreport+"*))";
+                                ldap_searcher.Filter = "(&(objectCategory=person)(objectClass=user)(" + directreport + "*))";
                                 ldap_searcher.PropertiesToLoad.Clear();
                                 ldap_searcher.PropertiesToLoad.Add("sAMAccountName");
                                 ldap_searcher.PropertiesToLoad.Add("cn");
@@ -492,7 +498,7 @@ namespace ADManagement.Services
             finally
             {
                 ldap_searcher.Dispose();
-                myLdapConnection.Dispose();
+                ldapConnection.Dispose();
                 winId.Dispose();
                 principalCtx.Dispose();
                 userGroupToFind.Dispose();
@@ -510,8 +516,8 @@ namespace ADManagement.Services
             StatusInfo status = new StatusInfo();
             status.StatusDetail = new List<StatusDetails> { };
             {
-                DirectoryEntry myLdapConnection = createDirectoryEntry();
-                DirectorySearcher ldap_searcher = new DirectorySearcher(myLdapConnection);
+                DirectoryEntry ldapConnection = createDirectoryEntry();
+                DirectorySearcher ldap_searcher = new DirectorySearcher(ldapConnection);
                 WindowsImpersonationContext impersonationContext = null;
                 WindowsIdentity winId = (WindowsIdentity)HttpContext.Current.User.Identity;
                 impersonationContext = WindowsIdentity.Impersonate(winId.Token);
@@ -674,7 +680,7 @@ namespace ADManagement.Services
                 }
                 finally
                 {
-                    myLdapConnection.Dispose();
+                    ldapConnection.Dispose();
                     ldap_searcher.Dispose();
                     winId.Dispose();
                     if (impersonationContext != null)

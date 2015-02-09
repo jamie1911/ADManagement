@@ -21,7 +21,7 @@ namespace ADManagement.Controllers
         //    return userInfo;
         //}
 
-        public List<People> GetPeople(string people)
+        public List<Person> GetPeople(string people)
         {
             ADUtility utility = new ADUtility();
 
